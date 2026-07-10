@@ -1,0 +1,49 @@
+# Build output
+bin/
+obj/
+out/
+publish/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+portfolio.db
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+secrets.json
+appsettings.Local.json
+appsettings.Production.json
+
+# User secrets should never be copied manually
+**/secrets.json
+
+# Uploads
+wwwroot/uploads/
+uploads/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# NuGet
+*.nupkg
+packages/
