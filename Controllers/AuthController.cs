@@ -20,30 +20,12 @@ namespace PortfolioBackend.Controllers
             _jwtService = jwtService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
-        {
-            var exists = await _context.AdminUsers
-                .AnyAsync(x => x.Email == dto.Email);
-
-            if (exists)
+         [HttpPost("register")]
+            [ApiExplorerSettings(IgnoreApi = true)]
+            public IActionResult Register()
             {
-                return BadRequest(new { message = "Email already exists." });
+                return NotFound();
             }
-
-            var user = new AdminUser
-            {
-                Name = dto.Name,
-                Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.AdminUsers.Add(user);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Admin registered successfully." });
-        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
