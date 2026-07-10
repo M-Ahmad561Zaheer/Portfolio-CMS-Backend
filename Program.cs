@@ -8,6 +8,7 @@ using PortfolioBackend.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -15,15 +16,20 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<JwtService>();
 
-var dbPath = builder.Environment.IsDevelopment()
-    ? "portfolio.db"
-    : "/data/portfolio.db";
-
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    )
-);
+{
+    var connectionString =
+        builder.Configuration.GetConnectionString("DefaultConnection");
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException(
+            "Database connection string is missing."
+        );
+    }
+
+    options.UseNpgsql(connectionString);
+});
 
 builder.Services.AddCors(options =>
 {
@@ -32,7 +38,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                "https://your-vercel-domain.vercel.app"
+                "https://portfolio-cms-frontend-seven.vercel.app"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -41,36 +47,48 @@ builder.Services.AddCors(options =>
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 
-builder.Services.AddAuthentication(options =>
+if (string.IsNullOrWhiteSpace(jwtKey))
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+    throw new InvalidOperationException("JWT key is missing.");
+}
+
+builder.Services
+    .AddAuthentication(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtKey!)
-        )
-    };
-});
+        options.DefaultAuthenticateScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+
+        options.DefaultChallengeScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey)
+            ),
+
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 var app = builder.Build();
 
-if (builder.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
@@ -78,6 +96,18 @@ app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/", () => Results.Ok(new
+{
+    status = "Portfolio CMS Backend is running",
+    environment = app.Environment.EnvironmentName,
+    timestamp = DateTime.UtcNow
+}));
+
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "healthy"
+}));
 
 app.MapControllers();
 
