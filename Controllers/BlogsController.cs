@@ -21,6 +21,7 @@ namespace PortfolioBackend.Controllers
         public async Task<IActionResult> GetBlogs()
         {
             return Ok(await _context.Blogs
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync());
         }
