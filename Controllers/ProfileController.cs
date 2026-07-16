@@ -20,7 +20,8 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProfile()
         {
-            var profile = await _context.ProfileSettings.FirstOrDefaultAsync();
+            // Optimized: Added .AsNoTracking() to load profile info instantly
+            var profile = await _context.ProfileSettings.AsNoTracking().FirstOrDefaultAsync();
 
             if (profile == null)
             {
@@ -39,6 +40,7 @@ namespace PortfolioBackend.Controllers
                     UpdatedAt = DateTime.UtcNow
                 };
 
+                // Add call tracking manage kar le gi, so AsNoTracking query par koi asar nahi paray ga tab
                 _context.ProfileSettings.Add(profile);
                 await _context.SaveChangesAsync();
             }
@@ -50,6 +52,7 @@ namespace PortfolioBackend.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateProfile(ProfileSetting updated)
         {
+            // No AsNoTracking here because we need to modify this existing record!
             var profile = await _context.ProfileSettings.FirstOrDefaultAsync();
 
             if (profile == null)

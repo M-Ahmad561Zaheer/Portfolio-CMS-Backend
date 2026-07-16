@@ -20,7 +20,9 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTestimonials()
         {
+            // Optimized: Added .AsNoTracking() to fetch the list instantly
             return Ok(await _context.Testimonials
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync());
         }
@@ -28,7 +30,10 @@ namespace PortfolioBackend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTestimonial(int id)
         {
-            var testimonial = await _context.Testimonials.FindAsync(id);
+            // Optimized: Fast single read-only fetch using FirstOrDefaultAsync with AsNoTracking
+            var testimonial = await _context.Testimonials
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (testimonial == null)
                 return NotFound();
@@ -41,7 +46,6 @@ namespace PortfolioBackend.Controllers
         public async Task<IActionResult> Create(Testimonial testimonial)
         {
             _context.Testimonials.Add(testimonial);
-
             await _context.SaveChangesAsync();
 
             return Ok(testimonial);
@@ -49,10 +53,9 @@ namespace PortfolioBackend.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(
-            int id,
-            Testimonial updated)
+        public async Task<IActionResult> Update(int id, Testimonial updated)
         {
+            // FindAsync is fine here because we need tracking to update this record
             var testimonial = await _context.Testimonials.FindAsync(id);
 
             if (testimonial == null)
@@ -79,7 +82,6 @@ namespace PortfolioBackend.Controllers
                 return NotFound();
 
             _context.Testimonials.Remove(testimonial);
-
             await _context.SaveChangesAsync();
 
             return Ok();

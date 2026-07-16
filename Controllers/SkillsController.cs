@@ -8,7 +8,6 @@ namespace PortfolioBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-
     public class SkillsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -20,17 +19,18 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSkills()
         {
+            // Optimized: Added .AsNoTracking() to load your skills instantly on the frontend
             var skills = await _context.Skills
-            .OrderBy(s => s.DisplayOrder)
-            .ThenBy(s => s.Category)
-            .ToListAsync();
+                .AsNoTracking()
+                .OrderBy(s => s.DisplayOrder)
+                .ThenBy(s => s.Category)
+                .ToListAsync();
 
             return Ok(skills);
         }
 
         [HttpPost]
         [Authorize]
-
         public async Task<IActionResult> CreateSkill(Skill skill)
         {
             _context.Skills.Add(skill);
@@ -43,6 +43,7 @@ namespace PortfolioBackend.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateSkill(int id, Skill updatedSkill)
         {
+            // FindAsync is perfectly fine here since we are modifying data
             var skill = await _context.Skills.FindAsync(id);
             if (skill == null)
             {
@@ -73,6 +74,5 @@ namespace PortfolioBackend.Controllers
 
             return Ok(new { message = "Skill deleted successfully." });
         }
-
     }
 }

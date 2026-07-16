@@ -20,6 +20,7 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBlogs()
         {
+            // Yeh bilkul perfect hai! OrderByDescending aur AsNoTracking dono behtareen hain.
             return Ok(await _context.Blogs
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
@@ -29,7 +30,10 @@ namespace PortfolioBackend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBlog(int id)
         {
-            var blog = await _context.Blogs.FindAsync(id);
+            // Fast Read-only fetch using AsNoTracking
+            var blog = await _context.Blogs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (blog == null)
                 return NotFound();
@@ -49,10 +53,9 @@ namespace PortfolioBackend.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBlog(
-            int id,
-            Blog updatedBlog)
+        public async Task<IActionResult> UpdateBlog(int id, Blog updatedBlog)
         {
+            // Yahan AsNoTracking nahi lagana kyunki humne isko edit kar k save karna hai, so FindAsync is fine here!
             var blog = await _context.Blogs.FindAsync(id);
 
             if (blog == null)
@@ -78,7 +81,6 @@ namespace PortfolioBackend.Controllers
                 return NotFound();
 
             _context.Blogs.Remove(blog);
-
             await _context.SaveChangesAsync();
 
             return Ok();

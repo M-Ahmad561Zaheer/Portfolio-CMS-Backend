@@ -31,6 +31,7 @@ namespace PortfolioBackend.Controllers
         public async Task<IActionResult> Login(LoginDto dto)
         {
             var user = await _context.AdminUsers
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Email == dto.Email);
 
             if (user == null)

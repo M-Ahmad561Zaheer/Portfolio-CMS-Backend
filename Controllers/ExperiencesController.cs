@@ -20,7 +20,9 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetExperiences()
         {
+            // Optimized: Added .AsNoTracking() to load the list instantly
             var experiences = await _context.Experiences
+                .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
                 .ThenByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -31,7 +33,10 @@ namespace PortfolioBackend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetExperience(int id)
         {
-            var experience = await _context.Experiences.FindAsync(id);
+            // Optimized: Fast read-only query using FirstOrDefaultAsync with AsNoTracking
+            var experience = await _context.Experiences
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (experience == null)
                 return NotFound();
@@ -53,6 +58,7 @@ namespace PortfolioBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateExperience(int id, Experience updated)
         {
+            // No AsNoTracking here because we are modifying and saving changes!
             var experience = await _context.Experiences.FindAsync(id);
 
             if (experience == null)

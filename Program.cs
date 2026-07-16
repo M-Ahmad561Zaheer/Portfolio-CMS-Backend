@@ -16,7 +16,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<JwtService>();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+// Optimized: AddDbContext ko AddDbContextPool mein badal diya taake instances reuse hon aur API fast chale
+builder.Services.AddDbContextPool<AppDbContext>(options =>
 {
     var connectionString =
         builder.Configuration.GetConnectionString("DefaultConnection");
@@ -86,6 +87,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// Production aur Development dono ke liye HTTPS secure redirection automatically manage ho sakti hai
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();

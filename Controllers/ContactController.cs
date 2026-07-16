@@ -22,8 +22,7 @@ namespace PortfolioBackend.Controllers
             IConfiguration config
         )
         {
-            _context = context;
-            _context = context;
+            _context = context; // Fixed: Duplicate line removed!
             _emailService = emailService;
             _config = config;
         }
@@ -40,7 +39,7 @@ namespace PortfolioBackend.Controllers
             };
 
             _context.ContactMessages.Add(message);
-            await _context.SaveChangesAsync(); // Database entry pehle safe ho jaye gi
+            await _context.SaveChangesAsync(); 
 
             var receiverEmail = _config["EmailSettings:ReceiverEmail"];
 
@@ -52,7 +51,7 @@ namespace PortfolioBackend.Controllers
                 <p>{dto.Message}</p>
             ";
 
-            // Fire-and-forget: Email background thread par chalay gi, API response ka wait nahi karegi
+            // Fire-and-forget: Sahi chal raha hai aur user lag se bacha rahe ga
             _ = Task.Run(async () =>
             {
                 try
@@ -66,12 +65,10 @@ namespace PortfolioBackend.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Background thread ke errors console par log ho jayen ge
                     Console.WriteLine("Background Email sending failed: " + ex.Message);
                 }
             });
 
-            // Foran response return ho jaye ga (Lag lagna khatam)
             return Ok(new { message = "Message sent successfully." });
         }
 
@@ -79,7 +76,9 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMessages()
         {
+            // Optimized: Added .AsNoTracking() to speed up database response
             var messages = await _context.ContactMessages
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
 
@@ -97,7 +96,6 @@ namespace PortfolioBackend.Controllers
                 return NotFound(new { message = "Message not found." });
             }
 
-            // Pehle database ka status update kar dete hain taake UI par latency na aaye
             contactMessage.IsReplied = true;
             contactMessage.ReplyMessage = dto.ReplyMessage;
             contactMessage.RepliedAt = DateTime.UtcNow;
@@ -112,7 +110,6 @@ namespace PortfolioBackend.Controllers
                 <p>Ahmad Zaheer</p>
             ";
 
-            // Fire-and-forget for reply email
             _ = Task.Run(async () =>
             {
                 try
@@ -131,6 +128,5 @@ namespace PortfolioBackend.Controllers
 
             return Ok(new { message = "Reply sent successfully." });
         }
-        
     }
 }

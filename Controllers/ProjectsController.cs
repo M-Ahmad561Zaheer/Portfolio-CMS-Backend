@@ -20,7 +20,9 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProjects()
         {
+            // Optimized: Added .AsNoTracking() to load projects instantly on the home page
             var projects = await _context.Projects
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
 
@@ -30,7 +32,10 @@ namespace PortfolioBackend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProject(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
+            // Optimized: Fast single read-only project load using FirstOrDefaultAsync with AsNoTracking
+            var project = await _context.Projects
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (project == null)
             {
@@ -56,6 +61,7 @@ namespace PortfolioBackend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProject(int id, Project updated)
         {
+            // No AsNoTracking here because we need to modify and save
             var project = await _context.Projects.FindAsync(id);
 
             if (project == null)

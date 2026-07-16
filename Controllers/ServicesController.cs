@@ -20,7 +20,9 @@ namespace PortfolioBackend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetServices()
         {
+            // Optimized: Added .AsNoTracking() for blazing fast load times
             var services = await _context.ServiceItems
+                .AsNoTracking()
                 .OrderBy(s => s.DisplayOrder)
                 .ToListAsync();
 
@@ -41,6 +43,7 @@ namespace PortfolioBackend.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateService(int id, ServiceItem updatedService)
         {
+            // FindAsync is correct here as we need to track and update the record
             var service = await _context.ServiceItems.FindAsync(id);
             if (service == null)
             {
@@ -57,7 +60,6 @@ namespace PortfolioBackend.Controllers
             return Ok(service);
         }
 
-        
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteService(int id)
