@@ -16,8 +16,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<JwtService>();
 
-// Optimized: AddDbContext ko AddDbContextPool mein badal diya taake instances reuse hon aur API fast chale
-builder.Services.AddDbContextPool<AppDbContext>(options =>
+// Fixed: Returned to standard AddDbContext to prevent internal context-pooling crashes
+builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var connectionString =
         builder.Configuration.GetConnectionString("DefaultConnection");
@@ -45,6 +45,9 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+// PostgreSQL legacy timestamp behavior switch
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 
@@ -87,7 +90,6 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Production aur Development dono ke liye HTTPS secure redirection automatically manage ho sakti hai
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
