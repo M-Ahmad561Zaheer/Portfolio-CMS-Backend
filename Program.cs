@@ -87,6 +87,14 @@ builder.Services
 
 var app = builder.Build();
 
+// Apply pending, backward-compatible EF migrations during deployment.
+// This keeps the Render database schema in sync without resetting existing data.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -98,6 +106,19 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseCors("AllowFrontend");
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            message = "An unexpected server error occurred."
+        });
+    });
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
