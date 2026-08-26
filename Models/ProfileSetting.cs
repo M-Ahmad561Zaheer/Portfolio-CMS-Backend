@@ -36,6 +36,10 @@ namespace PortfolioBackend.Models
         public string ArchitectureDescription { get; set; } = "Designing scalable and maintainable applications.";
         public string ContactTitle { get; set; } = "Let's Build Something Great";
         public string ContactSubtitle { get; set; } = "Have a project, opportunity or idea? I'd be glad to hear about it.";
+        public string AvailabilityText { get; set; } = "";
+        public bool ExploringEnabled { get; set; } = true;
+        public string ExploringItems { get; set; } = "";
+        public string ExploringStatus { get; set; } = "Learning";
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }

@@ -174,6 +174,10 @@ namespace PortfolioBackend.Migrations
                     b.Property<bool>("AboutEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("AvailabilityText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("ArchitectureDescription")
                         .IsRequired()
                         .HasColumnType("text");
@@ -208,6 +212,17 @@ namespace PortfolioBackend.Migrations
 
                     b.Property<bool>("ExperienceEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("ExploringEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ExploringItems")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ExploringStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("FullName")
                         .IsRequired()

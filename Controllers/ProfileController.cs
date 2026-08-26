@@ -92,6 +92,10 @@ namespace PortfolioBackend.Controllers
             profile.ArchitectureDescription = updated.ArchitectureDescription;
             profile.ContactTitle = updated.ContactTitle;
             profile.ContactSubtitle = updated.ContactSubtitle;
+            profile.AvailabilityText = updated.AvailabilityText;
+            profile.ExploringEnabled = updated.ExploringEnabled;
+            profile.ExploringItems = updated.ExploringItems;
+            profile.ExploringStatus = updated.ExploringStatus;
             profile.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
