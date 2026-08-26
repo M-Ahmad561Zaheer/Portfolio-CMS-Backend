@@ -7,6 +7,12 @@ using PortfolioBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowedOrigins = new[]
+{
+    "http://localhost:5173",
+    "https://az-developers.vercel.app"
+};
+
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
@@ -37,10 +43,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "https://az-developers.vercel.app"
-            )
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -87,12 +90,11 @@ builder.Services
 
 var app = builder.Build();
 
-// Apply pending, backward-compatible EF migrations during deployment.
-// This keeps the Render database schema in sync without resetting existing data.
+// Safely align both fresh and legacy Render databases with the current model.
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await dbContext.Database.MigrateAsync();
+    await PortfolioSchemaInitializer.InitializeAsync(dbContext);
 }
 
 app.UseSwagger();
@@ -111,6 +113,13 @@ app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
     {
+        var origin = context.Request.Headers.Origin.ToString();
+        if (allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+        {
+            context.Response.Headers.AccessControlAllowOrigin = origin;
+            context.Response.Headers.Vary = "Origin";
+        }
+
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         context.Response.ContentType = "application/json";
         await context.Response.WriteAsJsonAsync(new
@@ -132,7 +141,8 @@ app.MapGet("/", () => Results.Ok(new
 
 app.MapGet("/health", () => Results.Ok(new
 {
-    status = "healthy"
+    status = "healthy",
+    schemaStrategy = "idempotent-v1"
 }));
 
 app.MapControllers();
