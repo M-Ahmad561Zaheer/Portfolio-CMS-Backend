@@ -22,12 +22,18 @@ namespace PortfolioBackend.Controllers
             // Optimized: Added .AsNoTracking() to load your skills instantly on the frontend
             var skills = await _context.Skills
                 .AsNoTracking()
+                .Where(s => s.Visible)
                 .OrderBy(s => s.DisplayOrder)
                 .ThenBy(s => s.Category)
                 .ToListAsync();
 
             return Ok(skills);
         }
+
+        [HttpGet("admin")]
+        [Authorize]
+        public async Task<IActionResult> GetAdminSkills() => Ok(await _context.Skills.AsNoTracking()
+            .OrderBy(s => s.DisplayOrder).ThenBy(s => s.Category).ToListAsync());
 
         [HttpPost]
         [Authorize]
@@ -52,6 +58,11 @@ namespace PortfolioBackend.Controllers
 
             skill.Category = updatedSkill.Category;
             skill.Name = updatedSkill.Name;
+            skill.IconUrl = updatedSkill.IconUrl;
+            skill.Proficiency = updatedSkill.Proficiency;
+            skill.Note = updatedSkill.Note;
+            skill.Visible = updatedSkill.Visible;
+            skill.Featured = updatedSkill.Featured;
             skill.DisplayOrder = updatedSkill.DisplayOrder;
 
             await _context.SaveChangesAsync();

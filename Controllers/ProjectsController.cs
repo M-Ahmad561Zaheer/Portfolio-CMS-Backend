@@ -23,10 +23,26 @@ namespace PortfolioBackend.Controllers
             // Optimized: Added .AsNoTracking() to load projects instantly on the home page
             var projects = await _context.Projects
                 .AsNoTracking()
-                .OrderByDescending(x => x.CreatedAt)
+                .Where(x => x.Visible)
+                .OrderByDescending(x => x.Featured)
+                .ThenBy(x => x.DisplayOrder)
+                .ThenByDescending(x => x.CreatedAt)
                 .ToListAsync();
 
             return Ok(projects);
+        }
+
+        [Authorize]
+        [HttpGet("admin")]
+        public async Task<IActionResult> GetAdminProjects() => Ok(await _context.Projects
+            .AsNoTracking().OrderBy(x => x.DisplayOrder).ThenByDescending(x => x.CreatedAt).ToListAsync());
+
+        [HttpGet("slug/{slug}")]
+        public async Task<IActionResult> GetProjectBySlug(string slug)
+        {
+            var project = await _context.Projects.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Slug == slug && x.Visible);
+            return project == null ? NotFound(new { message = "Project not found." }) : Ok(project);
         }
 
         [HttpGet("{id}")]
@@ -35,7 +51,7 @@ namespace PortfolioBackend.Controllers
             // Optimized: Fast single read-only project load using FirstOrDefaultAsync with AsNoTracking
             var project = await _context.Projects
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && x.Visible);
 
             if (project == null)
             {
@@ -50,6 +66,7 @@ namespace PortfolioBackend.Controllers
         public async Task<IActionResult> CreateProject(Project project)
         {
             project.CreatedAt = DateTime.UtcNow;
+            project.Slug = string.IsNullOrWhiteSpace(project.Slug) ? CreateSlug(project.Title) : CreateSlug(project.Slug);
 
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
@@ -70,17 +87,32 @@ namespace PortfolioBackend.Controllers
             }
 
             project.Title = updated.Title;
+            project.Slug = string.IsNullOrWhiteSpace(updated.Slug) ? CreateSlug(updated.Title) : CreateSlug(updated.Slug);
             project.Description = updated.Description;
             project.LongDescription = updated.LongDescription;
             project.ImageUrl = updated.ImageUrl;
             project.GithubUrl = updated.GithubUrl;
             project.LiveUrl = updated.LiveUrl;
             project.TechStack = updated.TechStack;
+            project.Screenshots = updated.Screenshots;
+            project.Featured = updated.Featured;
+            project.DisplayOrder = updated.DisplayOrder;
+            project.Visible = updated.Visible;
+            project.Status = updated.Status;
+            project.Problem = updated.Problem;
+            project.Solution = updated.Solution;
+            project.TechnicalApproach = updated.TechnicalApproach;
+            project.KeyFeatures = updated.KeyFeatures;
+            project.Challenges = updated.Challenges;
+            project.LessonsLearned = updated.LessonsLearned;
 
             await _context.SaveChangesAsync();
 
             return Ok(project);
         }
+
+        private static string CreateSlug(string value) => string.Join("-", value.Trim().ToLowerInvariant()
+            .Split(new[] { ' ', '_', '/', '\\' }, StringSplitOptions.RemoveEmptyEntries));
 
         [Authorize]
         [HttpDelete("{id}")]

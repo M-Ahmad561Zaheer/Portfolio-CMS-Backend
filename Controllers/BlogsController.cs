@@ -23,9 +23,16 @@ namespace PortfolioBackend.Controllers
             // Yeh bilkul perfect hai! OrderByDescending aur AsNoTracking dono behtareen hain.
             return Ok(await _context.Blogs
                 .AsNoTracking()
-                .OrderByDescending(x => x.CreatedAt)
+                .Where(x => x.IsPublished)
+                .OrderByDescending(x => x.Featured)
+                .ThenByDescending(x => x.PublishedAt ?? x.CreatedAt)
                 .ToListAsync());
         }
+
+        [Authorize]
+        [HttpGet("admin")]
+        public async Task<IActionResult> GetAdminBlogs() => Ok(await _context.Blogs.AsNoTracking()
+            .OrderByDescending(x => x.CreatedAt).ToListAsync());
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBlog(int id)
@@ -33,7 +40,7 @@ namespace PortfolioBackend.Controllers
             // Fast Read-only fetch using AsNoTracking
             var blog = await _context.Blogs
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && x.IsPublished);
 
             if (blog == null)
                 return NotFound();
@@ -46,6 +53,7 @@ namespace PortfolioBackend.Controllers
         public async Task<IActionResult> CreateBlog(Blog blog)
         {
             _context.Blogs.Add(blog);
+            if (blog.IsPublished && blog.PublishedAt == null) blog.PublishedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             return Ok(blog);
@@ -64,6 +72,14 @@ namespace PortfolioBackend.Controllers
             blog.Title = updatedBlog.Title;
             blog.Slug = updatedBlog.Slug;
             blog.Content = updatedBlog.Content;
+            blog.Excerpt = updatedBlog.Excerpt;
+            blog.Category = updatedBlog.Category;
+            blog.ReadingTime = updatedBlog.ReadingTime;
+            blog.IsPublished = updatedBlog.IsPublished;
+            blog.Featured = updatedBlog.Featured;
+            blog.PublishedAt = updatedBlog.IsPublished
+                ? updatedBlog.PublishedAt ?? blog.PublishedAt ?? DateTime.UtcNow
+                : null;
             blog.Thumbnail = updatedBlog.Thumbnail;
 
             await _context.SaveChangesAsync();

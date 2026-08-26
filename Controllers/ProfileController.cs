@@ -82,6 +82,7 @@ namespace PortfolioBackend.Controllers
             profile.BlogEnabled = updated.BlogEnabled;
             profile.ContactEnabled = updated.ContactEnabled;
             profile.ContactFormEnabled = updated.ContactFormEnabled;
+            profile.TestimonialsEnabled = updated.TestimonialsEnabled;
             profile.MusicEnabled = updated.MusicEnabled;
             profile.MusicHeading = updated.MusicHeading;
             profile.MusicDescription = updated.MusicDescription;

@@ -26,6 +26,7 @@ namespace PortfolioBackend.Models
         public bool BlogEnabled { get; set; } = true;
         public bool ContactEnabled { get; set; } = true;
         public bool ContactFormEnabled { get; set; } = true;
+        public bool TestimonialsEnabled { get; set; }
         public bool MusicEnabled { get; set; }
         public string MusicHeading { get; set; } = "While You Browse";
         public string MusicDescription { get; set; } = "Lo-fi / Coding Vibes";

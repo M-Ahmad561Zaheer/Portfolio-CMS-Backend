@@ -21,12 +21,18 @@ namespace PortfolioBackend.Controllers
         public async Task<IActionResult> GetExperiences()
         {
             var experiences = await _context.Experiences
+                .Where(x => x.Visible)
                 .OrderBy(x => x.DisplayOrder)
                 .ThenByDescending(x => x.CreatedAt)
                 .ToListAsync();
 
             return Ok(experiences);
         }
+
+        [Authorize]
+        [HttpGet("admin")]
+        public async Task<IActionResult> GetAdminExperiences() => Ok(await _context.Experiences.AsNoTracking()
+            .OrderBy(x => x.DisplayOrder).ThenByDescending(x => x.CreatedAt).ToListAsync());
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetExperience(int id)
@@ -60,9 +66,14 @@ namespace PortfolioBackend.Controllers
 
             experience.Title = updated.Title;
             experience.Company = updated.Company;
+            experience.EmploymentType = updated.EmploymentType;
+            experience.Location = updated.Location;
             experience.StartDate = updated.StartDate;
             experience.EndDate = updated.EndDate;
+            experience.IsCurrent = updated.IsCurrent;
             experience.Description = updated.Description;
+            experience.Technologies = updated.Technologies;
+            experience.Visible = updated.Visible;
             experience.DisplayOrder = updated.DisplayOrder;
 
             await _context.SaveChangesAsync();

@@ -62,6 +62,13 @@ namespace PortfolioBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Category").IsRequired().HasColumnType("text");
+                    b.Property<string>("Excerpt").IsRequired().HasColumnType("text");
+                    b.Property<bool>("Featured").HasColumnType("boolean");
+                    b.Property<bool>("IsPublished").HasColumnType("boolean");
+                    b.Property<DateTime?>("PublishedAt").HasColumnType("timestamp with time zone");
+                    b.Property<int>("ReadingTime").HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -131,6 +138,12 @@ namespace PortfolioBackend.Migrations
                     b.Property<string>("Company")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("EmploymentType").IsRequired().HasColumnType("text");
+                    b.Property<bool>("IsCurrent").HasColumnType("boolean");
+                    b.Property<string>("Location").IsRequired().HasColumnType("text");
+                    b.Property<string>("Technologies").IsRequired().HasColumnType("text");
+                    b.Property<bool>("Visible").HasColumnType("boolean");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -288,6 +301,9 @@ namespace PortfolioBackend.Migrations
                     b.Property<bool>("SkillsEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("TestimonialsEnabled")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -306,6 +322,19 @@ namespace PortfolioBackend.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Challenges").IsRequired().HasColumnType("text");
+                    b.Property<int>("DisplayOrder").HasColumnType("integer");
+                    b.Property<bool>("Featured").HasColumnType("boolean");
+                    b.Property<string>("KeyFeatures").IsRequired().HasColumnType("text");
+                    b.Property<string>("LessonsLearned").IsRequired().HasColumnType("text");
+                    b.Property<string>("Problem").IsRequired().HasColumnType("text");
+                    b.Property<string>("Screenshots").IsRequired().HasColumnType("text");
+                    b.Property<string>("Slug").IsRequired().HasColumnType("text");
+                    b.Property<string>("Solution").IsRequired().HasColumnType("text");
+                    b.Property<string>("Status").IsRequired().HasColumnType("text");
+                    b.Property<string>("TechnicalApproach").IsRequired().HasColumnType("text");
+                    b.Property<bool>("Visible").HasColumnType("boolean");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -388,6 +417,12 @@ namespace PortfolioBackend.Migrations
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("Featured").HasColumnType("boolean");
+                    b.Property<string>("IconUrl").IsRequired().HasColumnType("text");
+                    b.Property<string>("Note").IsRequired().HasColumnType("text");
+                    b.Property<string>("Proficiency").IsRequired().HasColumnType("text");
+                    b.Property<bool>("Visible").HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
