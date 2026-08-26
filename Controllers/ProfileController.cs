@@ -73,6 +73,25 @@ namespace PortfolioBackend.Controllers
             profile.GithubUrl = updated.GithubUrl;
             profile.LinkedinUrl = updated.LinkedinUrl;
             profile.ResumeUrl = updated.ResumeUrl;
+            profile.AboutEnabled = updated.AboutEnabled;
+            profile.SkillsEnabled = updated.SkillsEnabled;
+            profile.ProjectsEnabled = updated.ProjectsEnabled;
+            profile.ExperienceEnabled = updated.ExperienceEnabled;
+            profile.ArchitectureEnabled = updated.ArchitectureEnabled;
+            profile.GithubEnabled = updated.GithubEnabled;
+            profile.BlogEnabled = updated.BlogEnabled;
+            profile.ContactEnabled = updated.ContactEnabled;
+            profile.ContactFormEnabled = updated.ContactFormEnabled;
+            profile.MusicEnabled = updated.MusicEnabled;
+            profile.MusicHeading = updated.MusicHeading;
+            profile.MusicDescription = updated.MusicDescription;
+            profile.MusicLabel = updated.MusicLabel;
+            profile.MusicUrl = updated.MusicUrl;
+            profile.MusicCoverUrl = updated.MusicCoverUrl;
+            profile.ArchitectureTitle = updated.ArchitectureTitle;
+            profile.ArchitectureDescription = updated.ArchitectureDescription;
+            profile.ContactTitle = updated.ContactTitle;
+            profile.ContactSubtitle = updated.ContactSubtitle;
             profile.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
