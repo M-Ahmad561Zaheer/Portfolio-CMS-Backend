@@ -49,9 +49,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// PostgreSQL legacy timestamp behavior switch
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
 var jwtKey = builder.Configuration["Jwt:Key"];
 
 if (string.IsNullOrWhiteSpace(jwtKey))
