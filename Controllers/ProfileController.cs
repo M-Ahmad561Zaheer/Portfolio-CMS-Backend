@@ -77,6 +77,7 @@ namespace PortfolioBackend.Controllers
             profile.SkillsEnabled = updated.SkillsEnabled;
             profile.ProjectsEnabled = updated.ProjectsEnabled;
             profile.ExperienceEnabled = updated.ExperienceEnabled;
+            profile.EducationEnabled = updated.EducationEnabled;
             profile.ArchitectureEnabled = updated.ArchitectureEnabled;
             profile.GithubEnabled = updated.GithubEnabled;
             profile.BlogEnabled = updated.BlogEnabled;

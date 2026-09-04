@@ -11,6 +11,8 @@ namespace PortfolioBackend.Data
         {
         }
 
+        public DbSet<Education> Educations { get; set; }
+
         public DbSet<Project> Projects { get; set; }
 
         public DbSet<AdminUser> AdminUsers { get; set; }

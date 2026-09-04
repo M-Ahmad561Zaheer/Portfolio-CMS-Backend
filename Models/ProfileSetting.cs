@@ -20,6 +20,7 @@ namespace PortfolioBackend.Models
         public bool AboutEnabled { get; set; } = true;
         public bool SkillsEnabled { get; set; } = true;
         public bool ProjectsEnabled { get; set; } = true;
+        public bool EducationEnabled { get; set; } = true;
         public bool ExperienceEnabled { get; set; } = true;
         public bool ArchitectureEnabled { get; set; } = true;
         public bool GithubEnabled { get; set; } = true;

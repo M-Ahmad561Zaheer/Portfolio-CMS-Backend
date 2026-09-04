@@ -127,6 +127,50 @@ namespace PortfolioBackend.Migrations
                     b.ToTable("ContactMessages");
                 });
 
+            modelBuilder.Entity("PortfolioBackend.Models.Education", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Institution")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsCurrent").HasColumnType("boolean");
+                    b.Property<string>("Location").IsRequired().HasColumnType("text");
+                    b.Property<string>("Grade").IsRequired().HasColumnType("text");
+                    b.Property<bool>("Visible").HasColumnType("boolean");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EndDate")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StartDate")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Degree")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Educations");
+                });
+
             modelBuilder.Entity("PortfolioBackend.Models.Experience", b =>
                 {
                     b.Property<int>("Id")
@@ -222,6 +266,8 @@ namespace PortfolioBackend.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("EducationEnabled").HasColumnType("boolean");
 
                     b.Property<bool>("ExperienceEnabled")
                         .HasColumnType("boolean");

@@ -28,6 +28,7 @@ namespace PortfolioBackend.Controllers
             var adminsCount = await _context.AdminUsers.CountAsync();
             var blogsCount = await _context.Blogs.CountAsync();
             var testimonialsCount = await _context.Testimonials.CountAsync();
+            var educationCount = await _context.Educations.CountAsync();
             var experiencesCount = await _context.Experiences.CountAsync();
             var skillsCount = await _context.Skills.CountAsync();
             var servicesCount = await _context.ServiceItems.CountAsync();
@@ -40,6 +41,7 @@ namespace PortfolioBackend.Controllers
                 blogs = blogsCount,
                 testimonials = testimonialsCount,
                 experience = experiencesCount,
+                education = educationCount,
                 skills = skillsCount,
                 services = servicesCount
             });
