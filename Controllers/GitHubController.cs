@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -59,10 +61,20 @@ public class GitHubController : ControllerBase
         using var response = await client.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+            var fallback = await FetchRepositoriesFromProfileAsync(
+                client,
+                username,
+                cancellationToken);
+            if (fallback.Count == 0)
             {
-                message = "GitHub repositories are temporarily unavailable."
-            });
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+                {
+                    message = "GitHub repositories are temporarily unavailable."
+                });
+            }
+
+            _cache.Set(cacheKey, fallback, TimeSpan.FromMinutes(30));
+            return Ok(fallback);
         }
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -84,6 +96,47 @@ public class GitHubController : ControllerBase
 
         _cache.Set(cacheKey, result, TimeSpan.FromMinutes(30));
         return Ok(result);
+    }
+
+    private static async Task<IReadOnlyList<RepositoryResponse>> FetchRepositoriesFromProfileAsync(
+        HttpClient client,
+        string username,
+        CancellationToken cancellationToken)
+    {
+        using var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"https://github.com/{Uri.EscapeDataString(username)}?tab=repositories");
+        request.Headers.UserAgent.ParseAdd("AZ-Developers-Portfolio/1.0");
+
+        using var response = await client.SendAsync(request, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            return [];
+        }
+
+        var html = await response.Content.ReadAsStringAsync(cancellationToken);
+        var escapedUsername = Regex.Escape(username);
+        var matches = Regex.Matches(
+            html,
+            $"<a\\s+href=\"/{escapedUsername}/([^\"/]+)\"\\s+itemprop=\"name codeRepository\"[^>]*>(.*?)</a>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        return matches
+            .Cast<Match>()
+            .Take(3)
+            .Select((match, index) =>
+            {
+                var repositoryName = WebUtility.HtmlDecode(
+                    Regex.Replace(match.Groups[2].Value, "<[^>]+>", string.Empty)).Trim();
+                return new RepositoryResponse(
+                    -(index + 1),
+                    repositoryName,
+                    null,
+                    $"https://github.com/{username}/{match.Groups[1].Value}",
+                    null,
+                    DateTimeOffset.UtcNow);
+            })
+            .ToList();
     }
 
     private sealed record RepositoryResponse(
